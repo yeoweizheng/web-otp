@@ -22,6 +22,12 @@ func InitDB(db *sql.DB) {
 	fmt.Println("Database initialized.")
 }
 
-// func CreateUser(db *sql.DB, username string, password string) (user User) {
-// 	// stmt, err := db.
-// }
+func UserExists(db *sql.DB, username string) {
+
+}
+
+func CreateUser(db *sql.DB, username string, password string) {
+	stmt, _ := db.Prepare(`INSERT INTO users (username, password) VALUES (?, ?)`)
+	stmt.Exec(username, password)
+	fmt.Println("User created.")
+}
