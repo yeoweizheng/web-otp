@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -22,6 +23,11 @@ func InitDB(db *sql.DB) {
 	userStmt.Exec()
 	accountStmt.Exec()
 	fmt.Println("Database initialized.")
+}
+
+func GetDBFromCtx(c *gin.Context) *sql.DB {
+	ctxDb, _ := c.Get("db")
+	return ctxDb.(*sql.DB)
 }
 
 func UsernameExists(db *sql.DB, username string) bool {
@@ -88,4 +94,16 @@ func DeleteUser(db *sql.DB, id int) {
 	stmt, _ := db.Prepare(`DELETE FROM users WHERE id = ?`)
 	stmt.Exec(id)
 	fmt.Println("User deleted.")
+}
+
+func VerifyUser(db *sql.DB, username string, password string) bool {
+	stmt, _ := db.Prepare(`SELECT password FROM users WHERE username = ?`)
+	var hash string
+	stmt.QueryRow(username).Scan(&hash)
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	if err == nil {
+		return true
+	} else {
+		return false
+	}
 }
