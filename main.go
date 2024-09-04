@@ -19,18 +19,8 @@ func main() {
 			InitDB(db)
 		} else if args[0] == "manageusers" {
 			ManageUsers(db)
+		} else if args[0] == "start" {
+			StartServer(db)
 		}
 	}
-	// createUserSQL := `CREATE TABLE users ("id" integer PRIMARY KEY AUTOINCREMENT, "username" TEXT, "password" TEXT);`
-	// statement, _ := db.Prepare(createUserSQL)
-	// statement.Exec()
-	// defer db.Close()
-
-	// r := gin.Default()
-	// r.GET("/ping", func(c *gin.Context) {
-	// 	c.JSON(200, gin.H{
-	// 		"message": "pong",
-	// 	})
-	// })
-	// r.Run(":9000")
 }
