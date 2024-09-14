@@ -1,10 +1,15 @@
 function get(url) {
     return new Promise((callback, err_callback) => {
+        let token = window.localStorage.getItem('token');
+        if (!token) {
+            window.location.href = "/login.html";
+            return;
+        }
         $.ajax({
             type: "GET",
             url: url,
             headers: {
-                Authorization: window.localStorage.getItem('token')
+                Authorization: token
             },
             success: (data) => callback(data),
             error: (resp) => {
@@ -17,12 +22,17 @@ function get(url) {
 
 function post(url, data) {
     return new Promise((callback, err_callback) => {
+        let token = window.localStorage.getItem('token');
+        if (!token) {
+            window.location.href = "/login.html";
+            return;
+        }
         $.ajax({
             type: "POST",
             url: url,
             data: data,
             headers: {
-                Authorization: window.localStorage.getItem('token')
+                Authorization: token
             },
             success: (data) => callback(data),
             error: (resp) => {
@@ -35,12 +45,17 @@ function post(url, data) {
 
 function patch(url, data) {
     return new Promise((callback, err_callback) => {
+        let token = window.localStorage.getItem('token');
+        if (!token) {
+            window.location.href = "/login.html";
+            return;
+        }
         $.ajax({
             type: "PATCH",
             url: url,
             data: data,
             headers: {
-                Authorization: window.localStorage.getItem('token')
+                Authorization: token
             },
             success: (data) => callback(data),
             error: (resp) => {
@@ -53,16 +68,23 @@ function patch(url, data) {
 
 function del(url) {
     return new Promise((callback, err_callback) => {
+        let token = window.localStorage.getItem('token');
+        if (!token) {
+            window.location.href = "/login.html";
+            return;
+        }
         $.ajax({
             type: "DELETE",
             url: url,
             headers: {
-                Authorization: window.localStorage.getItem('token')
+                Authorization: token
             },
             success: (data) => callback(data),
             error: (resp) => {
-                if (resp.status == 401) { window.location.href = "/login.html";
-                } else { err_callback(resp); }
+                if (resp.status == 401) { window.location.href = "/login.html"; } 
+                else if (resp.status == 204) { callback(resp); } 
+                else { err_callback(resp); }
+
             }
         })
     })

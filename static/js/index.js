@@ -4,22 +4,24 @@ var timestamp = null;
 var nextUpdateTimestamp = null;
 
 $(async () => {
-    await initAccountOTPs();
     $("#searchInput").on("input", () => { updateTable(); });
     $("#logoutLink").on("click", () => {
         window.localStorage.clear();
         window.location.href = "/login.html";
     });
+    await initAccountOTPs();
 })
 
 async function initAccountOTPs() {
     timestamp = new Date().valueOf();
     updateProgress();
     nextUpdateTimestamp = timestamp - (timestamp % 30000) + 30000;
-    currTableData = await get("/api/account_otps/");
-    updateTable();
-    nextTableData = await get(`/api/account_otps/?timestamp=${Math.round(nextUpdateTimestamp/1000)}`);
-    setInterval(refreshAccountOTPs, 100);
+    try {
+        currTableData = await get("/api/account_otps/");
+        updateTable();
+        nextTableData = await get(`/api/account_otps/?timestamp=${Math.round(nextUpdateTimestamp/1000)}`);
+        setInterval(refreshAccountOTPs, 100);
+    } catch(e) {}
 }
 
 async function refreshAccountOTPs() {
