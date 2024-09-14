@@ -16,12 +16,10 @@ async function initAccountOTPs() {
     timestamp = new Date().valueOf();
     updateProgress();
     nextUpdateTimestamp = timestamp - (timestamp % 30000) + 30000;
-    try {
-        currTableData = await get("/api/account_otps/");
-        updateTable();
-        nextTableData = await get(`/api/account_otps/?timestamp=${Math.round(nextUpdateTimestamp/1000)}`);
-        setInterval(refreshAccountOTPs, 100);
-    } catch(e) {}
+    currTableData = await get("/api/account_otps/");
+    updateTable();
+    nextTableData = await get(`/api/account_otps/?timestamp=${Math.round(nextUpdateTimestamp/1000)}`);
+    setInterval(refreshAccountOTPs, 100);
 }
 
 async function refreshAccountOTPs() {
