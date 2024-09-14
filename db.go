@@ -19,7 +19,7 @@ func OpenDB(filename string) *sql.DB {
 
 func InitDB(db *sql.DB) {
 	userStmt, _ := db.Prepare(`CREATE TABLE IF NOT EXISTS users ("id" integer PRIMARY KEY AUTOINCREMENT, "username" TEXT, "password" TEXT);`)
-	accountStmt, _ := db.Prepare(`CREATE TABLE IF NOT EXISTS accounts ("id" integer PRIMARY KEY AUTOINCREMENT, "name" TEXT, "token" TEXT, "userId" integer REFERENCES "user" ("id"));`)
+	accountStmt, _ := db.Prepare(`CREATE TABLE IF NOT EXISTS accounts ("id" integer PRIMARY KEY AUTOINCREMENT, "name" TEXT, "token" TEXT, "userId" integer REFERENCES "users" ("id"));`)
 	userStmt.Exec()
 	accountStmt.Exec()
 	fmt.Println("Database initialized.")
@@ -70,7 +70,7 @@ func GetUsers(db *sql.DB) []User {
 	rows, _ := stmt.Query()
 	for rows.Next() {
 		var user User
-		rows.Scan(&user.id, &user.username, &user.password)
+		rows.Scan(&user.Id, &user.Username, &user.Password)
 		users = append(users, user)
 	}
 	return users
@@ -96,14 +96,27 @@ func DeleteUser(db *sql.DB, id int) {
 	fmt.Println("User deleted.")
 }
 
-func VerifyUser(db *sql.DB, username string, password string) bool {
-	stmt, _ := db.Prepare(`SELECT password FROM users WHERE username = ?`)
+func VerifyAndGetUserId(db *sql.DB, username string, password string) (int, error) {
+	stmt, _ := db.Prepare(`SELECT id, password FROM users WHERE username = ?`)
+	var id int
 	var hash string
-	stmt.QueryRow(username).Scan(&hash)
+	stmt.QueryRow(username).Scan(&id, &hash)
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	if err == nil {
-		return true
+		return id, nil
 	} else {
-		return false
+		return -1, fmt.Errorf("failed to verify user")
 	}
+}
+
+func GetAccounts(db *sql.DB, userId int) []Account {
+	var accounts []Account
+	stmt, _ := db.Prepare(`SELECT id, name, token FROM accounts WHERE userId = ?`)
+	rows, _ := stmt.Query(userId)
+	for rows.Next() {
+		var account Account
+		rows.Scan(&account.Id, &account.Name, &account.Token)
+		accounts = append(accounts, account)
+	}
+	return accounts
 }

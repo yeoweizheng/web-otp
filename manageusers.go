@@ -28,7 +28,7 @@ func ManageUsers(db *sql.DB) {
 			var editOp string
 			users := GetUsers(db)
 			for _, user := range users {
-				fmt.Println(user.id, user.username)
+				fmt.Println(user.Id, user.Username)
 			}
 			fmt.Print("Select user ID: ")
 			fmt.Scan(&id)
