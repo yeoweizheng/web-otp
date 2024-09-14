@@ -46,8 +46,8 @@ function updateTable() {
         if (!row.name.toLowerCase().includes(searchText)) continue;
         html += `
         <tr data-id=${row.id}>
-            <td class="fs-6">${row.name}</td>
-            <td class=""><button type="button" class="btn bgn-lg btn-link fs-6 px-2 otp-btn">${row.otp}</button></td>
+            <td>${row.name}</td>
+            <td class=""><button type="button" class="btn bgn-lg btn-link px-2 otp-btn">${row.otp}</button></td>
             <td>
                 <button type="button" class="btn btn-lg btn-link px-2 edit-btn" data-mdb-ripple-init><i class="fas fa-pen-to-square text-dark"></i></button>
                 <button type="button" class="btn btn-lg btn-link px-2 delete-btn" data-mdb-ripple-init><i class="fas fa-trash-can text-danger"></i></button>
