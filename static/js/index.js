@@ -35,7 +35,10 @@ async function refreshAccountOTPs() {
 
 function updateTable() {
     let html = "";
-    if (!currTableData) return;
+    if (!currTableData) {
+        $("#tabledata").html("");
+        return;
+    }
     currTableData.sort((a, b) => a.name.localeCompare(b.name))
     let searchText = $("#searchInput").val().toLowerCase()
     for (let row of currTableData) {
