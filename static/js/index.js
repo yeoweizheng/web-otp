@@ -36,7 +36,8 @@ async function refreshAccountOTPs() {
 function updateTable() {
     let html = "";
     if (!currTableData) {
-        $("#tabledata").html("");
+        $("#tableData").html("");
+        updateEvents();
         return;
     }
     currTableData.sort((a, b) => a.name.localeCompare(b.name))
