@@ -1,19 +1,20 @@
 package main
 
 type User struct {
-	Id       int
+	Id       int64
 	Username string
 	Password string
 }
 
 type Account struct {
-	Id    int    `json:"id"`
+	Id    int64  `json:"id"`
 	Name  string `json:"name"`
 	Token string `json:"token"`
 }
 
 type AccountOTP struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
-	OTP  string `json:"otp"`
+	Id    int64  `json:"id"`
+	Name  string `json:"name"`
+	Token string `json:"token"`
+	OTP   string `json:"otp"`
 }

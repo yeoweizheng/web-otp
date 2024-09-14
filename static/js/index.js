@@ -5,6 +5,11 @@ var nextUpdateTimestamp = null;
 
 $(async () => {
     await initAccountOTPs();
+    $("#searchInput").on("input", () => { updateTable(); });
+    $("#logoutLink").on("click", () => {
+        window.localStorage.clear();
+        window.location.href = "/login.html";
+    });
 })
 
 async function initAccountOTPs() {
@@ -30,7 +35,10 @@ async function refreshAccountOTPs() {
 
 function updateTable() {
     let html = "";
+    currTableData.sort((a, b) => a.name.localeCompare(b.name))
+    let searchText = $("#searchInput").val().toLowerCase()
     for (let row of currTableData) {
+        if (!row.name.toLowerCase().includes(searchText)) continue;
         html += `
         <tr data-id=${row.id}>
             <td class="fs-6">${row.name}</td>
@@ -62,4 +70,22 @@ function updateEvents() {
         }
         navigator.clipboard.writeText(otp).then(() => {alert("Copied to clipboard", "success")})
     });
+    $(".edit-btn").on("click", (e) => {
+        let id = e.target.closest("tr").dataset.id;
+        for (let row of currTableData) {
+            if (row.id == id) {
+                openEditModal(id, row.name, row.token);
+                break
+            }
+        }
+    })
+    $(".delete-btn").on("click", (e) => {
+        let id = e.target.closest("tr").dataset.id;
+        del(`/api/delete_account/${id}/`).then(
+            async () => {
+                alert("Account deleted", "error");
+                await initAccountOTPs();
+            }
+        ).catch(() => { alert("Failed to delete account", "error")})
+    })
 }

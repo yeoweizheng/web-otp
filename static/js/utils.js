@@ -7,7 +7,10 @@ function get(url) {
                 Authorization: window.localStorage.getItem('token')
             },
             success: (data) => callback(data),
-            error: (error) => err_callback(error)
+            error: (resp) => {
+                if (resp.status == 401) { window.location.href = "/login.html";
+                } else { err_callback(resp); }
+            }
         })
     })
 }
@@ -22,7 +25,45 @@ function post(url, data) {
                 Authorization: window.localStorage.getItem('token')
             },
             success: (data) => callback(data),
-            error: (error) => err_callback(error)
+            error: (resp) => {
+                if (resp.status == 401) { window.location.href = "/login.html";
+                } else { err_callback(resp); }
+            }
+        })
+    })
+}
+
+function patch(url, data) {
+    return new Promise((callback, err_callback) => {
+        $.ajax({
+            type: "PATCH",
+            url: url,
+            data: data,
+            headers: {
+                Authorization: window.localStorage.getItem('token')
+            },
+            success: (data) => callback(data),
+            error: (resp) => {
+                if (resp.status == 401) { window.location.href = "/login.html";
+                } else { err_callback(resp); }
+            }
+        })
+    })
+}
+
+function del(url) {
+    return new Promise((callback, err_callback) => {
+        $.ajax({
+            type: "DELETE",
+            url: url,
+            headers: {
+                Authorization: window.localStorage.getItem('token')
+            },
+            success: (data) => callback(data),
+            error: (resp) => {
+                if (resp.status == 401) { window.location.href = "/login.html";
+                } else { err_callback(resp); }
+            }
         })
     })
 }

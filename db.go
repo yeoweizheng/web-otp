@@ -30,6 +30,11 @@ func GetDBFromCtx(c *gin.Context) *sql.DB {
 	return ctxDb.(*sql.DB)
 }
 
+func GetUserIdFromCtx(c *gin.Context) int {
+	userId, _ := c.Get("userId")
+	return int(userId.(float64))
+}
+
 func UsernameExists(db *sql.DB, username string) bool {
 	stmt, _ := db.Prepare(`SELECT COUNT(id) FROM users WHERE username = ?`)
 	var count int
@@ -119,4 +124,25 @@ func GetAccounts(db *sql.DB, userId int) []Account {
 		accounts = append(accounts, account)
 	}
 	return accounts
+}
+
+func CreateAccount(db *sql.DB, userId int, name string, token string) int64 {
+	stmt, _ := db.Prepare(`INSERT INTO accounts (userId, name, token) VALUES (?, ?, ?)`)
+	result, _ := stmt.Exec(userId, name, token)
+	lastInsertId, _ := result.LastInsertId()
+	return lastInsertId
+}
+
+func UpdateAccount(db *sql.DB, userId int, accountId int64, name string, token string) int64 {
+	stmt, _ := db.Prepare(`UPDATE accounts SET name = ?, token = ? WHERE userId = ? AND id = ?`)
+	result, _ := stmt.Exec(name, token, userId, accountId)
+	rowCount, _ := result.RowsAffected()
+	return rowCount
+}
+
+func DeleteAccount(db *sql.DB, userId int, accountId int64) int64 {
+	stmt, _ := db.Prepare(`DELETE FROM accounts WHERE userId = ? AND id = ?`)
+	result, _ := stmt.Exec(userId, accountId)
+	rowCount, _ := result.RowsAffected()
+	return rowCount
 }

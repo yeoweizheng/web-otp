@@ -14,13 +14,11 @@ import (
 	"github.com/pquerna/otp/totp"
 )
 
-const JWT_SECRET = "secret"
-
 //go:embed static/*
 var staticFS embed.FS
 
 func StartServer(db *sql.DB) {
-	r := gin.Default()
+	r := gin.New()
 
 	// For frontend development - serve from directory
 	// staticSubFS, _ := fs.Sub(staticFS, "static")
@@ -34,13 +32,16 @@ func StartServer(db *sql.DB) {
 	api.Use(DbMiddleware(db))
 	api.Use(AuthRequired())
 
-	api.POST("/login", LoginEndpoint)
-	api.GET("/account_otps", GetAccountOTPs)
+	api.POST("/login/", LoginAPI)
+	api.GET("/account_otps/", GetAccountOTPsAPI)
+	api.POST("/add_account/", AddAccountAPI)
+	api.PATCH("/update_account/:id/", UpdateAccountAPI)
+	api.DELETE("/delete_account/:id/", DeleteAccountAPI)
 
-	r.Run(":9000")
+	r.Run(HOST_PORT)
 }
 
-func LoginEndpoint(c *gin.Context) {
+func LoginAPI(c *gin.Context) {
 	db := GetDBFromCtx(c)
 	var data map[string]interface{}
 	c.BindJSON(&data)
@@ -55,8 +56,9 @@ func LoginEndpoint(c *gin.Context) {
 	}
 }
 
-func GetAccountOTPs(c *gin.Context) {
+func GetAccountOTPsAPI(c *gin.Context) {
 	db := GetDBFromCtx(c)
+	userId := GetUserIdFromCtx((c))
 	var timeStruct time.Time
 	tsParam := c.Query("timestamp")
 	timestamp, err := strconv.ParseInt(tsParam, 10, 64)
@@ -65,13 +67,47 @@ func GetAccountOTPs(c *gin.Context) {
 	} else {
 		timeStruct = time.Now()
 	}
-	userId, _ := c.Get("userId")
-	accounts := GetAccounts(db, int(userId.(float64)))
+	accounts := GetAccounts(db, userId)
 	var accountOTPs []AccountOTP
 	for _, account := range accounts {
 		code, _ := totp.GenerateCode(strings.ReplaceAll(account.Token, " ", ""), timeStruct)
-		accountOTP := AccountOTP{account.Id, account.Name, code}
+		accountOTP := AccountOTP{account.Id, account.Name, account.Token, code}
 		accountOTPs = append(accountOTPs, accountOTP)
 	}
 	c.JSON(200, accountOTPs)
+}
+
+func AddAccountAPI(c *gin.Context) {
+	db := GetDBFromCtx(c)
+	userId := GetUserIdFromCtx((c))
+	var data map[string]interface{}
+	c.BindJSON(&data)
+	lastInsertId := CreateAccount(db, userId, data["name"].(string), data["token"].(string))
+	c.JSON(201, Account{lastInsertId, data["name"].(string), data["token"].(string)})
+}
+
+func UpdateAccountAPI(c *gin.Context) {
+	db := GetDBFromCtx(c)
+	userId := GetUserIdFromCtx((c))
+	var data map[string]interface{}
+	c.BindJSON(&data)
+	accountId, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	rowCount := UpdateAccount(db, userId, accountId, data["name"].(string), data["token"].(string))
+	if rowCount == 1 {
+		c.JSON(200, Account{accountId, data["name"].(string), data["token"].(string)})
+	} else {
+		c.JSON(400, gin.H{"details": "Failed to update account"})
+	}
+}
+
+func DeleteAccountAPI(c *gin.Context) {
+	db := GetDBFromCtx(c)
+	userId := GetUserIdFromCtx(c)
+	accountId, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	rowCount := DeleteAccount(db, userId, accountId)
+	if rowCount == 1 {
+		c.Status(204)
+	} else {
+		c.JSON(400, gin.H{"details": "Failed to delete account"})
+	}
 }
