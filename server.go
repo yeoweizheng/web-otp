@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"io/fs"
 	"net/http"
 	"strconv"
 	"strings"
@@ -21,11 +22,11 @@ func StartServer(db *sql.DB) {
 	r := gin.New()
 
 	// For frontend development - serve from directory
-	// staticSubFS, _ := fs.Sub(staticFS, "static")
-	// r.NoRoute(gin.WrapH(http.FileServerFS(staticSubFS)))
+	// r.NoRoute(gin.WrapH(http.FileServer(http.Dir("static"))))
 
 	// For production - serve from embedded FS
-	r.NoRoute(gin.WrapH(http.FileServer(http.Dir("static"))))
+	staticSubFS, _ := fs.Sub(staticFS, "static")
+	r.NoRoute(gin.WrapH(http.FileServerFS(staticSubFS)))
 
 	api := r.Group("/api")
 
