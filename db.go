@@ -96,8 +96,10 @@ func UpdatePassword(db *sql.DB, id int, password string) {
 }
 
 func DeleteUser(db *sql.DB, id int) {
-	stmt, _ := db.Prepare(`DELETE FROM users WHERE id = ?`)
-	stmt.Exec(id)
+	stmt1, _ := db.Prepare(`DELETE FROM accounts WHERE userId = ?`)
+	stmt1.Exec(id)
+	stmt2, _ := db.Prepare(`DELETE FROM users WHERE id = ?`)
+	stmt2.Exec(id)
 	fmt.Println("User deleted.")
 }
 

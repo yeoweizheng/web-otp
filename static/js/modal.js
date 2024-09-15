@@ -20,6 +20,7 @@ $(() => {
     });
     $("#editModal").on("hidden.bs.modal", (e) => { 
         $("#deleteCheckbox").prop("checked", false);
+        $("#editDelBtn").attr("disabled", true);
     })
     $("#editSaveBtn").on("click", async (e) => {
         let accountId = $("#editAccountId").val();
