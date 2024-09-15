@@ -18,6 +18,9 @@ $(() => {
             ).catch(() => alert("Failed to add account", "error"));
         }
     });
+    $("#editModal").on("hidden.bs.modal", (e) => { 
+        $("#deleteCheckbox").prop("checked", false);
+    })
     $("#editSaveBtn").on("click", async (e) => {
         let accountId = $("#editAccountId").val();
         let accountName = $("#editAccountName").val();
@@ -33,6 +36,23 @@ $(() => {
             }
             ).catch(() => alert("Failed to update account", "error"));
         }
+    });
+    $("#deleteCheckbox").on("change", (e) => {
+        if (e.target.checked) {
+            $("#editDelBtn").attr("disabled", false);
+        } else {
+            $("#editDelBtn").attr("disabled", true);
+        }
+    });
+    $("#editDelBtn").on("click", (e) => {
+        let accountId = $("#editAccountId").val();
+        del(`/api/delete_account/${accountId}/`).then(
+            async () => {
+                $("#editModal").modal("hide");
+                alert("Account deleted", "error");
+                await initAccountOTPs();
+            }
+        ).catch(() => { alert("Failed to delete account", "error")})
     });
 })
 

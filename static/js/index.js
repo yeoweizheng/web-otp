@@ -46,12 +46,8 @@ function updateTable() {
         if (!row.name.toLowerCase().includes(searchText)) continue;
         html += `
         <tr data-id=${row.id}>
-            <td>${row.name}</td>
-            <td class=""><button type="button" class="btn bgn-lg btn-link px-2 otp-btn">${row.otp}</button></td>
-            <td>
-                <button type="button" class="btn btn-lg btn-link px-2 edit-btn" data-mdb-ripple-init><i class="fas fa-pen-to-square text-dark"></i></button>
-                <button type="button" class="btn btn-lg btn-link px-2 delete-btn" data-mdb-ripple-init><i class="fas fa-trash-can text-danger"></i></button>
-            </td>
+            <td role="button" class="account-td">${row.name}</td>
+            <td role="button" class="otp-td">${row.otp}</td>
         `;
     }
     $("#tableData").html(html);
@@ -64,7 +60,16 @@ function updateProgress() {
 }
 
 function updateEvents() {
-    $(".otp-btn").on("click", (e) => {
+    $(".account-td").on("click", (e) => {
+        let id = e.target.closest("tr").dataset.id;
+        for (let row of currTableData) {
+            if (row.id == id) {
+                openEditModal(id, row.name, row.token);
+                break
+            }
+        }
+    });
+    $(".otp-td").on("click", (e) => {
         let id = e.target.closest("tr").dataset.id;
         let otp;
         for (let row of currTableData) {
@@ -75,15 +80,6 @@ function updateEvents() {
         }
         navigator.clipboard.writeText(otp).then(() => {alert("Copied to clipboard", "success")})
     });
-    $(".edit-btn").on("click", (e) => {
-        let id = e.target.closest("tr").dataset.id;
-        for (let row of currTableData) {
-            if (row.id == id) {
-                openEditModal(id, row.name, row.token);
-                break
-            }
-        }
-    })
     $(".delete-btn").on("click", (e) => {
         let id = e.target.closest("tr").dataset.id;
         del(`/api/delete_account/${id}/`).then(
