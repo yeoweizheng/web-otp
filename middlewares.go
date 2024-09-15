@@ -29,7 +29,7 @@ func AuthRequired() gin.HandlerFunc {
 				c.Set("userId", claims["userId"])
 				c.Next()
 			} else {
-				c.JSON(401, gin.H{"details": "Unauthorized"})
+				c.AbortWithStatusJSON(401, gin.H{"details": "Unauthorized"})
 			}
 		}
 	}
