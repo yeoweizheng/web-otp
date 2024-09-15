@@ -19,23 +19,23 @@
         <span class="navbar-brand mb-0 h4 text-light">Web OTP</span></li>
       </div>
     </nav>
-    <div class="alert alert-fixed py-2" id="alert" role="alert"
-      style="display: block; top: 10px; left: 50%; transform: translateX(-50%);">
+    <div class="d-flex justify-content-center fixed-top mt-4">
+      <div class="alert alert-fixed py-1 px-3" id="alert" role="alert"></div>
     </div>
     <div class="text-center">
-      <h4 class="p-4"> Login </h4>
+      <h4 class="pt-4 pb-2"> Login </h4>
     </div>
     <form>
       <div class="container container-sm" style="max-width: 540px;">
         <div class="form-outline mb-4" data-mdb-input-init>
-          <input type="text" id="username" class="form-control form-control-lg">
+          <input type="text" id="username" class="form-control">
           <label class="form-label" for="username">Username</label>
         </div>
         <div class="form-outline mb-4" data-mdb-input-init>
-          <input type="password" id="password" class="form-control form-control-lg">
+          <input type="password" id="password" class="form-control">
           <label class="form-label" for="password">Password</label>
         </div>
-        <button data-mdb-ripple-init id="loginBtn" type="submit" class="btn btn-lg btn-primary btn-block">Login</button>
+        <button data-mdb-ripple-init id="loginBtn" type="submit" class="btn btn-primary btn-block">Login</button>
       </div>
     </form>
   </div>
