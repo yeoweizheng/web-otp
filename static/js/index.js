@@ -4,6 +4,8 @@ var timestamp = null;
 var nextUpdateTimestamp = null;
 
 $(async () => {
+    let username = window.localStorage.getItem('username');
+    $("#usernameDisplay").html(username);
     $("#searchInput").on("input", () => { updateTable(); });
     $("#logoutLink").on("click", () => {
         window.localStorage.clear();
