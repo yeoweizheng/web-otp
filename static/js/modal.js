@@ -22,6 +22,7 @@ $(() => {
         $("#editAccountToken").val("");
         $("#deleteCheckbox").prop("checked", false);
         $("#editDelBtn").attr("disabled", true);
+        $("#showTokenBtn").removeClass("d-none");
         $("#tokenRevealConfirmWrap").addClass("d-none");
         $("#revealPasswordInput").val("");
     })
@@ -58,7 +59,8 @@ $(() => {
         }
         post(`/api/reveal_account_token/${accountId}/`, JSON.stringify({password: password}))
         .then((resp) => {
-            $("#editAccountToken").val(resp.token);
+            $("#editAccountToken").val(resp.token).trigger("input").trigger("focus");
+            $("#showTokenBtn").addClass("d-none");
             $("#revealPasswordInput").val("");
             $("#tokenRevealConfirmWrap").addClass("d-none");
             alert("Token loaded", "success");
@@ -94,6 +96,7 @@ function openEditModal(id, accountName) {
     $("#editAccountId").val(id);
     $("#editAccountName").val(accountName);
     $("#editAccountToken").val("");
+    $("#showTokenBtn").removeClass("d-none");
     $("#revealPasswordInput").val("");
     $("#tokenRevealConfirmWrap").addClass("d-none");
     $("#editModal").modal("show");
