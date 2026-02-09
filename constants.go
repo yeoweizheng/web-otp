@@ -2,7 +2,7 @@ package main
 
 // To modify values for production
 const JWT_SECRET = "secret"
-const HOST_PORT = "127.0.0.1:9000"
+const HOST_PORT = ":8005"
 const ACCESS_TOKEN_COOKIE_NAME = "accessToken"
 const REFRESH_TOKEN_COOKIE_NAME = "refreshToken"
 const ACCESS_TOKEN_MAX_AGE_SECONDS = 900
