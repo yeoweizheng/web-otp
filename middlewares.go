@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"strings"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -17,7 +17,9 @@ func DbMiddleware(db *sql.DB) gin.HandlerFunc {
 
 func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if strings.Contains(c.Request.URL.String(), "login") {
+		isLoginRoute := c.Request.Method == http.MethodPost &&
+			(c.Request.URL.Path == "/api/login/" || c.Request.URL.Path == "/api/login")
+		if isLoginRoute {
 			c.Next()
 		} else {
 			auth := c.GetHeader("Authorization")
