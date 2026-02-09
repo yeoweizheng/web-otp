@@ -1,4 +1,14 @@
 $(() => {
+    function showRevealPasswordError(message) {
+        $("#revealPasswordInput").addClass("is-invalid");
+        $("#revealPasswordError").text(message).removeClass("d-none");
+    }
+
+    function clearRevealPasswordError() {
+        $("#revealPasswordInput").removeClass("is-invalid");
+        $("#revealPasswordError").text("").addClass("d-none");
+    }
+
     $("#addModal").on("hidden.bs.modal", (e) => { 
         $("#addAccountName").val("");
         $("#addAccountToken").val("");
@@ -25,6 +35,7 @@ $(() => {
         $("#showTokenBtn").removeClass("d-none");
         $("#tokenRevealConfirmWrap").addClass("d-none");
         $("#revealPasswordInput").val("");
+        clearRevealPasswordError();
     })
     $("#editSaveBtn").on("click", async (e) => {
         let accountId = $("#editAccountId").val();
@@ -48,30 +59,37 @@ $(() => {
     });
     $("#showTokenBtn").on("click", (e) => {
         $("#tokenRevealConfirmWrap").removeClass("d-none");
+        clearRevealPasswordError();
         $("#revealPasswordInput").trigger("focus");
+    });
+    $("#revealPasswordInput").on("input", () => {
+        clearRevealPasswordError();
     });
     $("#confirmShowTokenBtn").on("click", (e) => {
         let accountId = $("#editAccountId").val();
         let password = $("#revealPasswordInput").val();
         if (!password) {
-            alert("Password is required", "error");
+            showRevealPasswordError("Password is required");
             return;
         }
+        clearRevealPasswordError();
         post(`/api/reveal_account_token/${accountId}/`, JSON.stringify({password: password}))
         .then((resp) => {
             $("#editAccountToken").val(resp.token).trigger("input").trigger("focus");
             $("#showTokenBtn").addClass("d-none");
             $("#revealPasswordInput").val("");
             $("#tokenRevealConfirmWrap").addClass("d-none");
+            clearRevealPasswordError();
             alert("Token loaded", "success");
         })
         .catch(() => {
-            alert("Password incorrect or token unavailable", "error");
+            showRevealPasswordError("Password incorrect");
         });
     });
     $("#cancelShowTokenBtn").on("click", (e) => {
         $("#revealPasswordInput").val("");
         $("#tokenRevealConfirmWrap").addClass("d-none");
+        clearRevealPasswordError();
     });
     $("#deleteCheckbox").on("change", (e) => {
         if (e.target.checked) {
@@ -99,5 +117,7 @@ function openEditModal(id, accountName) {
     $("#showTokenBtn").removeClass("d-none");
     $("#revealPasswordInput").val("");
     $("#tokenRevealConfirmWrap").addClass("d-none");
+    $("#revealPasswordInput").removeClass("is-invalid");
+    $("#revealPasswordError").text("").addClass("d-none");
     $("#editModal").modal("show");
 }
