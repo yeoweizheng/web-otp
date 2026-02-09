@@ -3,3 +3,9 @@
         max-width: 400px;
     }
 }
+
+/* Keep password confirm field tightly coupled with inline validation text. */
+#tokenRevealConfirmWrap .form-outline,
+#revealPasswordInput {
+    margin-bottom: 0 !important;
+}
