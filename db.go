@@ -116,6 +116,21 @@ func VerifyAndGetUserId(db *sql.DB, username string, password string) (int, erro
 	}
 }
 
+func VerifyUserPasswordByID(db *sql.DB, userId int, password string) error {
+	stmt, _ := db.Prepare(`SELECT password FROM users WHERE id = ?`)
+	var hash string
+	err := stmt.QueryRow(userId).Scan(&hash)
+	if err != nil {
+		return fmt.Errorf("failed to verify user")
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	if err == nil {
+		return nil
+	} else {
+		return fmt.Errorf("failed to verify user")
+	}
+}
+
 func GetAccounts(db *sql.DB, userId int) []Account {
 	var accounts []Account
 	stmt, _ := db.Prepare(`SELECT id, name, token FROM accounts WHERE userId = ?`)
@@ -140,6 +155,23 @@ func UpdateAccount(db *sql.DB, userId int, accountId int64, name string, token s
 	result, _ := stmt.Exec(name, token, userId, accountId)
 	rowCount, _ := result.RowsAffected()
 	return rowCount
+}
+
+func UpdateAccountName(db *sql.DB, userId int, accountId int64, name string) int64 {
+	stmt, _ := db.Prepare(`UPDATE accounts SET name = ? WHERE userId = ? AND id = ?`)
+	result, _ := stmt.Exec(name, userId, accountId)
+	rowCount, _ := result.RowsAffected()
+	return rowCount
+}
+
+func GetAccountToken(db *sql.DB, userId int, accountId int64) (string, error) {
+	stmt, _ := db.Prepare(`SELECT token FROM accounts WHERE userId = ? AND id = ?`)
+	var token string
+	err := stmt.QueryRow(userId, accountId).Scan(&token)
+	if err != nil {
+		return "", fmt.Errorf("failed to get account token")
+	}
+	return token, nil
 }
 
 func DeleteAccount(db *sql.DB, userId int, accountId int64) int64 {

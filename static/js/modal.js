@@ -19,17 +19,24 @@ $(() => {
         }
     });
     $("#editModal").on("hidden.bs.modal", (e) => { 
+        $("#editAccountToken").val("");
         $("#deleteCheckbox").prop("checked", false);
         $("#editDelBtn").attr("disabled", true);
+        $("#tokenRevealConfirmWrap").addClass("d-none");
+        $("#revealPasswordInput").val("");
     })
     $("#editSaveBtn").on("click", async (e) => {
         let accountId = $("#editAccountId").val();
         let accountName = $("#editAccountName").val();
         let token = $("#editAccountToken").val();
-        if (!accountName || !token) {
-            alert("Account name and token are required", "error");
+        if (!accountName) {
+            alert("Account name is required", "error");
         } else {
-            patch(`/api/update_account/${accountId}/`, JSON.stringify({name: accountName, token: token}))
+            let payload = {name: accountName};
+            if (token && token.trim()) {
+                payload.token = token;
+            }
+            patch(`/api/update_account/${accountId}/`, JSON.stringify(payload))
             .then(async () => {
                 $("#editModal").modal("hide");
                 alert("Account updated", "success");
@@ -37,6 +44,32 @@ $(() => {
             }
             ).catch(() => alert("Failed to update account", "error"));
         }
+    });
+    $("#showTokenBtn").on("click", (e) => {
+        $("#tokenRevealConfirmWrap").removeClass("d-none");
+        $("#revealPasswordInput").trigger("focus");
+    });
+    $("#confirmShowTokenBtn").on("click", (e) => {
+        let accountId = $("#editAccountId").val();
+        let password = $("#revealPasswordInput").val();
+        if (!password) {
+            alert("Password is required", "error");
+            return;
+        }
+        post(`/api/reveal_account_token/${accountId}/`, JSON.stringify({password: password}))
+        .then((resp) => {
+            $("#editAccountToken").val(resp.token);
+            $("#revealPasswordInput").val("");
+            $("#tokenRevealConfirmWrap").addClass("d-none");
+            alert("Token loaded", "success");
+        })
+        .catch(() => {
+            alert("Password incorrect or token unavailable", "error");
+        });
+    });
+    $("#cancelShowTokenBtn").on("click", (e) => {
+        $("#revealPasswordInput").val("");
+        $("#tokenRevealConfirmWrap").addClass("d-none");
     });
     $("#deleteCheckbox").on("change", (e) => {
         if (e.target.checked) {
@@ -57,9 +90,11 @@ $(() => {
     });
 })
 
-function openEditModal(id, accountName, token) {
+function openEditModal(id, accountName) {
     $("#editAccountId").val(id);
     $("#editAccountName").val(accountName);
-    $("#editAccountToken").val(token);
+    $("#editAccountToken").val("");
+    $("#revealPasswordInput").val("");
+    $("#tokenRevealConfirmWrap").addClass("d-none");
     $("#editModal").modal("show");
 }

@@ -2,9 +2,15 @@ $("#loginBtn").on("click", (e) => {
     e.preventDefault();
     let username = $("#username").val();
     let password = $("#password").val();
-    $.post("/api/login/", JSON.stringify({username: username, password: password}), (resp) => {
-        window.localStorage.setItem("username", username);
-        window.localStorage.setItem("token", resp.token);
-        window.location.href = "/";
-    }, "json").fail(() => {alert("Login failed", "error")})
+    $.ajax({
+        type: "POST",
+        url: "/api/login/",
+        data: JSON.stringify({username: username, password: password}),
+        contentType: "application/json",
+        success: (resp) => {
+            window.localStorage.setItem("username", resp.username || username);
+            window.location.href = "/";
+        },
+        error: () => {alert("Login failed", "error")}
+    })
 })

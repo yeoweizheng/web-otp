@@ -13,8 +13,7 @@ type Account struct {
 }
 
 type AccountOTP struct {
-	Id    int64  `json:"id"`
-	Name  string `json:"name"`
-	Token string `json:"token"`
-	OTP   string `json:"otp"`
+	Id   int64  `json:"id"`
+	Name string `json:"name"`
+	OTP  string `json:"otp"`
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"net/http"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -17,22 +17,42 @@ func DbMiddleware(db *sql.DB) gin.HandlerFunc {
 
 func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		isLoginRoute := c.Request.Method == http.MethodPost &&
-			(c.Request.URL.Path == "/api/login/" || c.Request.URL.Path == "/api/login")
-		if isLoginRoute {
-			c.Next()
-		} else {
-			auth := c.GetHeader("Authorization")
-			token, err := jwt.Parse(auth, func(token *jwt.Token) (interface{}, error) {
-				return []byte(JWT_SECRET), nil
-			})
-			if err == nil {
-				claims, _ := token.Claims.(jwt.MapClaims)
-				c.Set("userId", claims["userId"])
-				c.Next()
-			} else {
-				c.AbortWithStatusJSON(401, gin.H{"details": "Unauthorized"})
-			}
+		accessToken, err := c.Cookie(ACCESS_TOKEN_COOKIE_NAME)
+		if err != nil {
+			c.AbortWithStatusJSON(401, gin.H{"details": "Unauthorized"})
+			return
 		}
+
+		token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("invalid signing method")
+			}
+			return []byte(JWT_SECRET), nil
+		})
+		if err != nil || !token.Valid {
+			c.AbortWithStatusJSON(401, gin.H{"details": "Unauthorized"})
+			return
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			c.AbortWithStatusJSON(401, gin.H{"details": "Unauthorized"})
+			return
+		}
+
+		tokenType, ok := claims["type"].(string)
+		if !ok || tokenType != "access" {
+			c.AbortWithStatusJSON(401, gin.H{"details": "Unauthorized"})
+			return
+		}
+
+		userId, ok := claims["userId"].(float64)
+		if !ok {
+			c.AbortWithStatusJSON(401, gin.H{"details": "Unauthorized"})
+			return
+		}
+
+		c.Set("userId", userId)
+		c.Next()
 	}
 }

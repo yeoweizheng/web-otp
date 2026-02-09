@@ -8,8 +8,14 @@ $(async () => {
     $("#usernameDisplay").html(username);
     $("#searchInput").on("input", () => { updateTable(); });
     $("#logoutLink").on("click", () => {
-        window.localStorage.clear();
-        window.location.href = "/login.html";
+        $.ajax({
+            type: "POST",
+            url: "/api/logout/",
+            complete: () => {
+                window.localStorage.clear();
+                window.location.href = "/login.html";
+            }
+        });
     });
     await initAccountOTPs();
 })
@@ -66,7 +72,7 @@ function updateEvents() {
         let id = e.target.closest("tr").dataset.id;
         for (let row of currTableData) {
             if (row.id == id) {
-                openEditModal(id, row.name, row.token);
+                openEditModal(id, row.name);
                 break
             }
         }
